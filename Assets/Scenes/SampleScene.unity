@@ -1153,6 +1153,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startButton: {fileID: 1177125110}
   leaveButton: {fileID: 203180158}
+  mapRightButton: {fileID: 1821727866}
+  mapLeftButton: {fileID: 272475080}
+  mapImage: {fileID: 610530646}
+  mapSprites:
+  - {fileID: 21300000, guid: 9ce20d349d8b21046af567b63f64b668, type: 3}
+  - {fileID: 21300000, guid: 5df767bdb616ec4419e1367276ab72c3, type: 3}
+  - {fileID: 21300000, guid: 64ad73af2a33b7541bd9e20668b7dbb8, type: 3}
   playerPanelItemPrefabs: {fileID: 4894081790655418298, guid: 6a21d01ddb9cd3942937b889125dec85, type: 3}
   playerPanelContent: {fileID: 1205425530}
 --- !u!1 &857241907

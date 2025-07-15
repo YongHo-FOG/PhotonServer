@@ -1,3 +1,4 @@
+using ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
 using System.Collections.Generic;
@@ -93,6 +94,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         roomNameAdmitButton.interactable = false; // 중복 입력 방지를 위함
 
         RoomOptions options = new RoomOptions { MaxPlayers = 8 }; // 차후에 ui에서 이 값또한 받은 값으로 사용한다면 최대인원수 지정이 직접 가능
+        options.CustomRoomPropertiesForLobby = new string[] { "Map" };
         PhotonNetwork.CreateRoom(roomNameField.text, options);
         roomNameField.text = null;
     }
@@ -102,6 +104,9 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         base.OnCreatedRoom();
         lobbyPanel.SetActive(false);
         roomNameAdmitButton.interactable = true; // 다시 버튼 활성화
+        ExitGames.Client.Photon.Hashtable roomProperty = new Hashtable();
+        roomProperty["Map"] = 0;
+        PhotonNetwork.CurrentRoom.SetCustomProperties(roomProperty);
         Debug.Log("방 생성 완료");
     }
 
@@ -172,6 +177,12 @@ public class NetworkManager : MonoBehaviourPunCallbacks
             }
         }
 
+    }
+
+    public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable propertiesThatChanged)
+    {
+        base.OnRoomPropertiesUpdate(propertiesThatChanged);
+        roomManager.MapChange();
     }
     private void Update()
     {

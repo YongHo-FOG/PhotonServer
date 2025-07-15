@@ -9,15 +9,22 @@ public class RoomManager : MonoBehaviour
 {
     [SerializeField] private Button startButton;
     [SerializeField] private Button leaveButton;
-
+    [SerializeField] private Button mapRightButton;
+    [SerializeField] private Button mapLeftButton;
+    [SerializeField] private Image mapImage;
+    [SerializeField] private Sprite[] mapSprites;
     [SerializeField] private GameObject playerPanelItemPrefabs;
     [SerializeField] private Transform playerPanelContent;
 
+    public int mapIndex;
     private Dictionary<int, PlayerPanelItem> playerPanels = new Dictionary<int, PlayerPanelItem>();
 
     private void Start()
     {
         leaveButton.onClick.AddListener(LeaveRoom);
+        mapLeftButton.onClick.AddListener(ClickLeftMapButton);
+        mapRightButton.onClick.AddListener(ClickRightMapButton);
+        mapIndex = 0;
     }
     public void PlayerPanelSpawn(Player player)
     {
@@ -34,6 +41,9 @@ public class RoomManager : MonoBehaviour
         if(!PhotonNetwork.IsMasterClient)
         {
             startButton.interactable = false;
+            mapLeftButton.interactable = false;
+            mapRightButton.interactable = false;
+            MapChange();
         }
 
         
@@ -71,5 +81,45 @@ public class RoomManager : MonoBehaviour
         playerPanels.Clear();
 
         PhotonNetwork.LeaveRoom();
+    }
+
+    public void ClickLeftMapButton()
+    {
+        mapIndex--;
+
+        if(mapIndex == -1) // 조건식을 < 0 으로 했을때는 뭔가 오류가 난다.
+        {
+            mapIndex = mapSprites.Length - 1;
+        }
+
+        ExitGames.Client.Photon.Hashtable roomProperty = new ExitGames.Client.Photon.Hashtable();
+        roomProperty["Map"] = mapIndex;
+        PhotonNetwork.CurrentRoom.SetCustomProperties(roomProperty);
+
+
+        MapChange();
+    }
+
+    public void ClickRightMapButton()
+    {
+        mapIndex++;
+
+        if(mapIndex == mapSprites.Length) // 조건식을 > mapSprites.Length 로 했을때 뭔가 오류가 난다. 왜?
+        {
+            mapIndex = 0;
+        }
+
+        ExitGames.Client.Photon.Hashtable roomProperty = new ExitGames.Client.Photon.Hashtable();
+        roomProperty["Map"] = mapIndex;
+        PhotonNetwork.CurrentRoom.SetCustomProperties(roomProperty);
+
+        MapChange();
+    }
+
+    public void MapChange()
+    {
+        mapIndex = (int)PhotonNetwork.CurrentRoom.CustomProperties["Map"];
+        Debug.Log(mapIndex);
+        mapImage.sprite = mapSprites[mapIndex];
     }
 }
