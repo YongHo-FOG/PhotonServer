@@ -1,6 +1,5 @@
 using Photon.Pun;
 using Photon.Realtime;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,10 +16,11 @@ public class RoomManager : MonoBehaviour
     [SerializeField] private Transform playerPanelContent;
 
     public int mapIndex;
-    private Dictionary<int, PlayerPanelItem> playerPanels = new Dictionary<int, PlayerPanelItem>();
+    public Dictionary<int, PlayerPanelItem> playerPanels = new Dictionary<int, PlayerPanelItem>();
 
     private void Start()
     {
+        startButton.onClick.AddListener(GameStart);
         leaveButton.onClick.AddListener(LeaveRoom);
         mapLeftButton.onClick.AddListener(ClickLeftMapButton);
         mapRightButton.onClick.AddListener(ClickRightMapButton);
@@ -28,6 +28,15 @@ public class RoomManager : MonoBehaviour
     }
     public void PlayerPanelSpawn(Player player)
     {
+        if (playerPanels.TryGetValue(player.ActorNumber, out PlayerPanelItem panel))
+        {
+            startButton.interactable = true;
+            mapLeftButton.interactable = true;
+            mapRightButton.interactable = true;
+            panel.Init(player);
+            return;
+        }
+
         // 기존 플레이어가 새로운 플레이어 입장 시 호출
         GameObject obj = Instantiate(playerPanelItemPrefabs);
         obj.transform.SetParent(playerPanelContent);
@@ -36,9 +45,34 @@ public class RoomManager : MonoBehaviour
         playerPanels.Add(player.ActorNumber, item);
     }
 
+    public void GameStart()
+    {
+        if (PhotonNetwork.IsMasterClient && AllPlayerReadyCheck())
+        {
+            PhotonNetwork.LoadLevel("GameScene");
+        }
+
+    }
+
+    public bool AllPlayerReadyCheck()
+    {
+        foreach (Player player in PhotonNetwork.PlayerList)
+        {
+            if (!player.CustomProperties.TryGetValue("Ready", out object value) || !(bool)value)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public void PlayerPanelSpawn()
     {
-        if(!PhotonNetwork.IsMasterClient)
+
+        PhotonNetwork.AutomaticallySyncScene = true;
+
+        if (!PhotonNetwork.IsMasterClient)
         {
             startButton.interactable = false;
             mapLeftButton.interactable = false;
@@ -46,7 +80,7 @@ public class RoomManager : MonoBehaviour
             MapChange();
         }
 
-        
+
         // 내가 새로 입장했을때 호출
         foreach (Player player in PhotonNetwork.PlayerList)
         {
@@ -60,7 +94,7 @@ public class RoomManager : MonoBehaviour
 
     public void PlayerPanelDestroy(Player player)
     {
-        if(playerPanels.TryGetValue(player.ActorNumber, out PlayerPanelItem panel))
+        if (playerPanels.TryGetValue(player.ActorNumber, out PlayerPanelItem panel))
         {
             Destroy(panel.gameObject);
             playerPanels.Remove(player.ActorNumber);
@@ -87,7 +121,7 @@ public class RoomManager : MonoBehaviour
     {
         mapIndex--;
 
-        if(mapIndex == -1) // 조건식을 < 0 으로 했을때는 뭔가 오류가 난다.
+        if (mapIndex == -1) // 조건식을 < 0 으로 했을때는 뭔가 오류가 난다.
         {
             mapIndex = mapSprites.Length - 1;
         }
@@ -104,7 +138,7 @@ public class RoomManager : MonoBehaviour
     {
         mapIndex++;
 
-        if(mapIndex == mapSprites.Length) // 조건식을 > mapSprites.Length 로 했을때 뭔가 오류가 난다. 왜?
+        if (mapIndex == mapSprites.Length) // 조건식을 > mapSprites.Length 로 했을때 뭔가 오류가 난다. 왜?
         {
             mapIndex = 0;
         }

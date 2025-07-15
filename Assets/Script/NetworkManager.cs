@@ -184,6 +184,18 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         base.OnRoomPropertiesUpdate(propertiesThatChanged);
         roomManager.MapChange();
     }
+
+    public override void OnPlayerPropertiesUpdate(Player target, ExitGames.Client.Photon.Hashtable propoertiesThatChanged)
+    {
+        base.OnPlayerPropertiesUpdate(target, propoertiesThatChanged);
+        roomManager.playerPanels[target.ActorNumber].ReadyCheck(target);
+    }
+
+    public override void OnMasterClientSwitched(Player newClientPlayer)
+    {
+        base.OnMasterClientSwitched(newClientPlayer);
+        roomManager.PlayerPanelSpawn(newClientPlayer);
+    }
     private void Update()
     {
         stateText.text = $"Current State : {PhotonNetwork.NetworkClientState}";
