@@ -22,7 +22,10 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     [SerializeField] private Transform roomListContent;
     private Dictionary<string, GameObject> roomListItems = new Dictionary<string, GameObject>();
 
-    // Start is called before the first frame update
+    [SerializeField] private RoomManager roomManager;
+
+
+    
     void Start()
     {
         PhotonNetwork.ConnectUsingSettings();
@@ -43,7 +46,14 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         base.OnConnectedToMaster();
         Debug.Log("마스터 연결");
-        loadingPanel.SetActive(false); // 연결이 다 되면 로딩패널을 끔
+        if(loadingPanel.activeSelf)
+        {
+            loadingPanel.SetActive(false); // 연결이 다 되면 로딩패널을 끔
+        }
+        else
+        {
+            PhotonNetwork.JoinLobby();
+        }
     }
 
     public override void OnDisconnected(DisconnectCause cause)
@@ -68,6 +78,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         base.OnJoinedLobby();
         nicknamePanel.SetActive(false);  // 닉네임 연결되서 로비에 접속되면 닉네임패널 활성화 끔
+        lobbyPanel.SetActive(true);
         Debug.Log("로비 참가");
     }
 
@@ -98,7 +109,27 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         base.OnJoinedRoom();
         lobbyPanel.SetActive(false);
+        roomManager.PlayerPanelSpawn();
         Debug.Log("방 참가 완료");
+    }
+
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        base.OnPlayerEnteredRoom(newPlayer);
+
+        if (newPlayer != PhotonNetwork.LocalPlayer) // 내가 아닐때에만 실행되도록 예외처리
+        {
+            roomManager.PlayerPanelSpawn(newPlayer);
+        }
+    }
+
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        base.OnPlayerLeftRoom(otherPlayer);
+        if (otherPlayer != PhotonNetwork.LocalPlayer)
+        {
+            roomManager.PlayerPanelDestroy(otherPlayer);
+        }
     }
 
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
