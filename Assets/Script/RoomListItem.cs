@@ -1,18 +1,34 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.UI;
+using TMPro;
+using Photon.Realtime;
+using UnityEngine.Rendering;
+using Photon.Pun;
 public class RoomListItem : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    // 방 이름
+    [SerializeField] private TextMeshProUGUI roomNameText;
+    // 입장 인원
+    [SerializeField] private TextMeshProUGUI playerContText;
+    // 버튼을 통한 방 참가 
+    [SerializeField] private Button joinButton;
+
+    private string roomName;
+    public void Init(RoomInfo info)
     {
-        
+        roomName = info.Name;
+        roomNameText.text = $"Room Name : {roomName}";
+        playerContText.text = $"{info.PlayerCount} / {info.MaxPlayers}";
+
+        joinButton.onClick.AddListener(JoinRoom);
     }
 
-    // Update is called once per frame
-    void Update()
+    public void JoinRoom()
     {
-        
+        PhotonNetwork.JoinRoom(roomName);
+        joinButton.onClick.RemoveListener(JoinRoom);   // = joinButton.interactable = false; 중복 입력 방지를 위함
+
     }
 }

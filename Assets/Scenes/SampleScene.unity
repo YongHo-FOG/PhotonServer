@@ -1973,11 +1973,13 @@ MonoBehaviour:
   loadingPanel: {fileID: 326427446}
   stateText: {fileID: 725217518}
   nicknamePanel: {fileID: 672274024}
-  lobbyPanel: {fileID: 985544028}
   nicknameField: {fileID: 1726596058}
-  roomNameField: {fileID: 1151029439}
   nicknameAdmitButton: {fileID: 1681620915}
+  roomNameField: {fileID: 1151029439}
+  lobbyPanel: {fileID: 985544028}
   roomNameAdmitButton: {fileID: 1163672156}
+  roomListItemPrefabs: {fileID: 1316568232754557776, guid: 4243bb5f699d84c4f996ca09964a8313, type: 3}
+  roomListContent: {fileID: 1296557551}
 --- !u!4 &1242172354
 Transform:
   m_ObjectHideFlags: 0

@@ -19,6 +19,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject lobbyPanel;
     [SerializeField] private Button roomNameAdmitButton;
     [SerializeField] private GameObject roomListItemPrefabs;
+    [SerializeField] private Transform roomListContent;
     private Dictionary<string, GameObject> roomListItems = new Dictionary<string, GameObject>();
 
     // Start is called before the first frame update
@@ -96,6 +97,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         base.OnJoinedRoom();
+        lobbyPanel.SetActive(false);
         Debug.Log("방 참가 완료");
     }
 
@@ -103,25 +105,38 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         base.OnRoomListUpdate(roomList);
 
+        // 매게변수인 roomList를 순회한다
         foreach (RoomInfo info in roomList)
         {
+            // 방이 삭제될때.
             if (info.RemovedFromList)
             {
+                // 딕셔너리에 값이 있는지 확인
                 if(roomListItems.TryGetValue(info.Name,out GameObject obj))
                 {
+                    // 리스트 삭제
                     Destroy(obj);
+                    // 딕셔너리에서 삭제
                     roomListItems.Remove(info.Name);
                 }
                 continue;
             }
 
+            // roomListItems 에 해당 방이 있을때에
             if (roomListItems.ContainsKey(info.Name))
             {
-
+                // 플레이어 수가 변경되는 경우.
+                roomListItems[info.Name].GetComponent<RoomListItem>().Init(info);
             }
-            else
+            else // 해당 방이 없을때. 로비에 새로 입장 했거나, 방이 새로 생성되었을때
             {
+                // 방 리스트 오브젝트를 생성
                 GameObject roomListItem = Instantiate(roomListItemPrefabs);
+                // 스크롤뷰의 뷰포트에 넣어주는 작업
+                roomListItem.transform.SetParent(roomListContent);
+                // 초기화
+                roomListItem.GetComponent<RoomListItem>().Init(info);
+                // 딕셔너리에 해당 방 정보를 추가.
                 roomListItems.Add(info.Name, roomListItem);
             }
         }
